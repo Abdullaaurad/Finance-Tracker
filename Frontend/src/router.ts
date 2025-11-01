@@ -1,8 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from './screens/login.vue'
 import Signup from './screens/Signup.vue'
+import Landing from './screens/Landing.vue'
 
 const routes = [
+  {
+    path: '/landing',
+    name: 'Landing',
+    component: Landing
+  },
   {
     path: '/login',
     name: 'Login',
