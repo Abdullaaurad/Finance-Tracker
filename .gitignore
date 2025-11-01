@@ -1,0 +1,121 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output/
+
+# IDE and Editor files
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Images - Ignore root-level images but keep Frontend app assets
+uploads/
+temp-images/
+*.tmp
+
+# Root level images (screenshots, etc.) - IGNORE
+/*.jpg
+/*.jpeg
+/*.png
+/*.gif
+/*.bmp
+/*.tiff
+/*.svg
+/*.webp
+/*.ico
+/*.avif
+/*.jfif
+/*.pjpeg
+/*.pjp
+/*.apng
+
+# Keep essential Frontend app assets - ALLOW
+!Frontend/src/assets/*
+!Frontend/public/*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+db.json
+
+# Backend specific (if you add backend later)
+.env.production
+.env.development
+.env.local
+.env
+
+# Frontend specific
+Frontend/dist/
+Frontend/.cache/
+Frontend/.vite/
+
+# Temporary files
+*.tmp
+*.temp
+.temporary/
+
+# System files
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Windows
+ehthumbs_vista.db
+*.stackdump
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
