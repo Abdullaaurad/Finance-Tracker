@@ -16,9 +16,6 @@ class UserService:
     def get_user_by_email(self, email: str) -> Optional[UserModel]:
         return self.db.query(UserModel).filter(UserModel.email == email).first()
     
-    def get_user_by_username(self, username: str) -> Optional[UserModel]:
-        return self.db.query(UserModel).filter(UserModel.username == username).first()
-    
     def get_users(self, skip: int = 0, limit: int = 100) -> List[UserModel]:
         return self.db.query(UserModel).offset(skip).limit(limit).all()
     
@@ -26,10 +23,7 @@ class UserService:
         hashed_password = self.get_password_hash(user.password)
         db_user = UserModel(
             email=user.email,
-            username=user.username,
-            full_name=user.full_name,
-            hashed_password=hashed_password,
-            is_active=user.is_active
+            hashed_password=hashed_password
         )
         self.db.add(db_user)
         self.db.commit()

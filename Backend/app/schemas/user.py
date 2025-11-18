@@ -14,6 +14,7 @@ class UserUpdate(BaseModel):
 
 class User(UserBase):
     id: int
+    hashed_password: str
     created_at: datetime
     updated_at: datetime
     
