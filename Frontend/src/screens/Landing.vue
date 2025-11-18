@@ -208,22 +208,6 @@ const transactions = [
           </div>
         </div>
 
-        <!-- Transactions Card -->
-        <div class="stat-card transactions-card">
-          <div class="card-header">
-            <span class="card-label">Recent Transactions</span>
-            <button class="btn-link">Search</button>
-          </div>
-          <div class="transactions-list">
-            <div v-for="transaction in transactions" :key="transaction.merchant" class="transaction-item">
-              <div class="transaction-info">
-                <span class="merchant">{{ transaction.merchant }}</span>
-                <span class="category">{{ transaction.category }}</span>
-              </div>
-              <span class="amount">{{ transaction.amount }}</span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -511,6 +495,7 @@ const transactions = [
 
 .hero-buttons {
   display: flex;
+  justify-content: center;
   gap: 1.5rem;
 }
 
