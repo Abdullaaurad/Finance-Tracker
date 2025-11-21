@@ -30,7 +30,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(user.router, prefix="/api/v1", tags=["users"])
+app.include_router(user.router, prefix="/api/v1/auth", tags=["users"])
 
 @app.get("/")
 async def root():

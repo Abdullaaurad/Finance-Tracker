@@ -3,22 +3,84 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Input from '../components/input.vue'
 import Button from '../components/Button.vue'
+import { SignupUrl } from '../Constant/Url'
+import { notification, Spin } from 'ant-design-vue'
+import { usernamevalidator, emailvalidator, passwordvalidator } from '../utils/validators'
+import { useMutation } from '@tanstack/vue-query'
 
 const router = useRouter()
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const username = ref<string>('')
+const email = ref<string>('')
+const password = ref<string>('')
+const confirmPassword = ref<string>('')
+const usernameError = ref<string>('')
+const emailError = ref<string>('')
+const passwordError = ref<string>('')
+const confirmPasswordError = ref<string>('')
+const loading = ref<boolean>(false)
 
-const handleSignup = () => {
-  if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match')
-    return
+const handleSignup = async () => {
+  // Reset errors
+  usernameError.value = '';
+  emailError.value = '';
+  passwordError.value = '';
+  confirmPasswordError.value = '';
+
+  // Validate inputs
+  usernameError.value = usernamevalidator(username.value) ? '' : 'Invalid username';
+  emailError.value = emailvalidator(email.value) ? '' : 'Invalid email';
+  passwordError.value = passwordvalidator(password.value) ? '' : 'Invalid password';
+  confirmPasswordError.value =
+    password.value === confirmPassword.value ? '' : 'Passwords do not match';
+
+  // If any errors, stop
+  if (usernameError.value || emailError.value || passwordError.value || confirmPasswordError.value) {
+    notification.error({
+      message: 'Validation Error',
+      description: 'Please fix the errors before submitting.',
+      placement: 'topRight',
+    });
+    return;
   }
-  console.log('Signup:', email.value, password.value)
 
-  
+  loading.value = true;
 
-}
+  try {
+    const response = await fetch(SignupUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        email: email.value,
+        password: password.value,
+      }),
+    });
+
+    if (response.ok) {
+      notification.success({
+        message: 'Signup Successful',
+        description: 'Your account has been created. Please log in.',
+        placement: 'topRight',
+      });
+      router.push('/login');
+    } else {
+      const data = await response.json();
+      notification.error({
+        message: 'Signup Failed',
+        description: data.message || 'An error occurred during signup.',
+        placement: 'topRight',
+      });
+    }
+  } catch (error: any) {
+    notification.error({
+      message: 'Signup Failed',
+      description: error.message || 'An unexpected error occurred.',
+      placement: 'topRight',
+    });
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleSocialSignup = (provider: string) => {
   // TODO: Implement social signup logic
@@ -28,6 +90,7 @@ const handleSocialSignup = (provider: string) => {
 const goToLogin = () => {
   router.push('/login')
 }
+
 </script>
 
 <template>
@@ -35,10 +98,22 @@ const goToLogin = () => {
     <div class="signup-container">
       <h1 class="title">Create Account</h1>
       <p class="subtitle">
-        Join us and take control of your financial future. Track expenses, set goals, and build wealth with our comprehensive financial management platform.
+        Join us and take control of your financial future.
       </p>
 
       <form @submit.prevent="handleSignup">
+        <div class="form-group">
+          <Input
+            v-model="username"
+            type="string"
+            placeholder="Enter a username"
+            :required="true"
+          />
+          <span v-if="usernameError" class="error-message">
+            {{ usernameError }}
+          </span>
+        </div>
+
         <div class="form-group">
           <Input
             v-model="email"
@@ -46,35 +121,48 @@ const goToLogin = () => {
             placeholder="Enter your email address"
             :required="true"
           />
+          <span v-if="emailError" class="error-message">
+            {{ emailError }}
+          </span>
         </div>
 
         <div class="form-group">
           <Input
+            id="Password"
             v-model="password"
             type="password"
             placeholder="Enter your password"
             :required="true"
             :passwordToggle="true"
           />
+          <span v-if="passwordError" class="error-message">
+            {{ passwordError }}
+          </span>
         </div>
 
         <div class="form-group">
           <Input
+            id="confirmPassword"
             v-model="confirmPassword"
             type="password"
             placeholder="Confirm your password"
             :required="true"
             :passwordToggle="true"
           />
+          <span v-if="confirmPasswordError" class="error-message">
+            {{ confirmPasswordError }}
+          </span>
         </div>
-
-        <Button variant="secondary"> Create Account </Button>
+        <Button :disabled="loading" variant="secondary">
+          <Spin v-if="loading" />
+          <span v-else>Create Account</span>
+        </Button>
       </form>
 
       <div class="divider">
         <div class="social-buttons">
-          <button
-            type="button"
+          <button 
+            type="button" 
             class="social-button"
             @click="handleSocialSignup('facebook')"
           >
@@ -83,8 +171,8 @@ const goToLogin = () => {
             </svg>
             Facebook
           </button>
-          <button
-            type="button"
+          <button 
+            type="button" 
             class="social-button"
             @click="handleSocialSignup('google')"
           >
@@ -94,10 +182,10 @@ const goToLogin = () => {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Google
+              Google
           </button>
-          <button
-            type="button"
+          <button 
+            type="button" 
             class="social-button"
             @click="handleSocialSignup('apple')"
           >
@@ -147,7 +235,7 @@ const goToLogin = () => {
   font-size: 32px;
   font-weight: 600;
   color: #ffffff;
-  margin: 0 0 12px 0;
+  margin: 0 0 6px 0;
   text-align: center;
 }
 
@@ -156,7 +244,7 @@ const goToLogin = () => {
   color: #94a3b8;
   line-height: 1.6;
   text-align: center;
-  margin: 0 0 32px 0;
+  margin: 0 0 20px 0;
 }
 
 .form-group {
@@ -205,7 +293,7 @@ const goToLogin = () => {
   text-align: center;
   color: #94a3b8;
   font-size: 14px;
-  margin: 24px 0 0 0;
+  margin: 10px 0 0 0;
 }
 
 .link-button {
@@ -223,6 +311,14 @@ const goToLogin = () => {
 .link-button:hover {
   text-decoration: underline;
 }
+
+.error-message {
+    display: block;
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 6px;
+    margin-left: 4px;
+  }
 
 @media (max-width: 480px) {
   .signup-container {
