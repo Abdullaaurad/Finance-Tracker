@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import Colors from '../Constant/Colors'
 
 interface Props {
-  variant?: 'primary' | 'cta' | 'small' | 'link' | 'pricing'
+  variant?: 'primary' | 'secondary' | 'cta' | 'small' | 'link' | 'pricing'
   disabled?: boolean
   primary?: boolean
 }
@@ -26,7 +26,7 @@ const buttonClass = computed(() => {
 </template>
 
 <style scoped>
-.btn-primary, .btn-cta, .btn-small, .btn-link, .btn-pricing {
+.btn-primary, .btn-cta, .btn-small, .btn-link, .btn-pricing, .btn-secondary {
   padding: 0.75rem 1.8rem;
   border: none;
   border-radius: 8px;
@@ -46,6 +46,19 @@ const buttonClass = computed(() => {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(174, 174, 174, 0.7);
+}
+
+.btn-secondary {
+  margin-top: 10px;
+  width: 100%;
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.6);
 }
 
 .btn-cta {

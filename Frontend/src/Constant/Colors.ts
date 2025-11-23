@@ -1,4 +1,4 @@
-const Colors = {
+const Colors: Record<string, string> = {
   primary0: '#FFFFFF',
   primary50: '#F2F2F2',
   primary100: '#E6E6E6',
