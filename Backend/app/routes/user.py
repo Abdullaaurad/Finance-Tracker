@@ -14,7 +14,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = user_service.get_users(skip=skip, limit=limit)
     return users
 
-@router.post("/users/login", response_model=Token)
+@router.post("/users/login")
 def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
     user_service = UserService(db)
     db_user = user_service.authenticate_user(user_login.username, user_login.password)
@@ -31,7 +31,16 @@ def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
         data={"sub": db_user.username}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Return both token and user data
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "user": {
+            "id": db_user.id,
+            "username": db_user.username,
+            "email": db_user.email
+        }
+    }
 
 @router.post("/users", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

@@ -7,19 +7,16 @@ import { LoginUrl } from '../Constant/Url'
 import { Spin } from 'ant-design-vue'
 import { usernamevalidator, passwordvalidator } from '../utils/validators'
 import { glassNotification } from "../components/notification.js"
-import { atom, useAtom, createStore } from 'jotai'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
+const { login } = useAuth()
 const username = ref<string>('')
 const password = ref<string>('')
 const loading = ref<boolean>(false)
 
 const usernameError = ref<string>('')
 const passwordError = ref<string>('')
-
-const userIdAtom = atom<number | null>(null)
-const usernameAtom = atom<string | null>(null)
-const store = createStore()
 
 const handleLogin = async () => {
   // Reset errors
@@ -50,16 +47,29 @@ const handleLogin = async () => {
     });
 
     if (response.ok) {
-      const userData = await response.json();
+      const responseData = await response.json();
+      console.log('Login response data:', responseData)
+      
       glassNotification.success({
         message: 'Login Successful',
         description: 'Welcome back! You have successfully logged in.',
         placement: 'topRight',
       });
-      store.set(userIdAtom, userData.id)
-      store.set(usernameAtom, username.value)
-      console.log('Login successful:', userData);
-      router.push('/home');
+      
+      // Check if we have the expected response structure
+      if (responseData && responseData.user && responseData.access_token) {
+        const { user, access_token } = responseData
+        login(user.id, user.username, access_token)
+        console.log('Authentication data set successfully')
+        router.push('/Dashboard')
+      } else {
+        console.error('Invalid response structure:', responseData)
+        glassNotification.error({
+          message: 'Login Failed',
+          description: 'Invalid response structure received.',
+          placement: 'topRight',
+        });
+      }
     } else {
       const data = await response.json();
       glassNotification.error({

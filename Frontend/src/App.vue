@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { initializeAuth } from './composables/useAuth'
 
 const router = useRouter()
 
 onMounted(() => {
-  router.push('/landing')
+  // Initialize authentication state from localStorage
+  const isAuthenticated = initializeAuth()
+  
+  // Handle root path redirect
+  if (window.location.pathname === '/') {
+    if (isAuthenticated) {
+      router.push('/Dashboard')
+    } else {
+      router.push('/landing')
+    }
+  }
 })
 </script>
 
