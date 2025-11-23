@@ -15,7 +15,8 @@ interface Props {
     modelValue: string,
     placeholder: string,
     required?: boolean,
-    passwordToggle?: boolean
+    passwordToggle?: boolean,
+    id?: string
 }
 
 const props = defineProps<Props>()
@@ -65,7 +66,7 @@ const InputIcon = computed(() => {
         <component :is="InputIcon" class="input-icon" width="18" height="18" />
         
         <input
-            :id="type"
+            :id="id || type"
             :type="actualInputType"
             :placeholder="placeholder"
             :required="required"

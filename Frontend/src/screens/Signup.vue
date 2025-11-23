@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import Input from '../components/input.vue'
 import Button from '../components/Button.vue'
 import { SignupUrl } from '../Constant/Url'
-import { notification, Spin } from 'ant-design-vue'
+import { Spin } from 'ant-design-vue'
 import { usernamevalidator, emailvalidator, passwordvalidator } from '../utils/validators'
-import { useMutation } from '@tanstack/vue-query'
+import { glassNotification } from "../components/notification.js"
 
 const router = useRouter()
 const username = ref<string>('')
@@ -35,7 +35,7 @@ const handleSignup = async () => {
 
   // If any errors, stop
   if (usernameError.value || emailError.value || passwordError.value || confirmPasswordError.value) {
-    notification.error({
+    glassNotification.error({
       message: 'Validation Error',
       description: 'Please fix the errors before submitting.',
       placement: 'topRight',
@@ -57,7 +57,7 @@ const handleSignup = async () => {
     });
 
     if (response.ok) {
-      notification.success({
+      glassNotification.success({
         message: 'Signup Successful',
         description: 'Your account has been created. Please log in.',
         placement: 'topRight',
@@ -65,14 +65,14 @@ const handleSignup = async () => {
       router.push('/login');
     } else {
       const data = await response.json();
-      notification.error({
+      glassNotification.error({
         message: 'Signup Failed',
-        description: data.message || 'An error occurred during signup.',
+        description: data.detail || data.message || 'An error occurred during signup.',
         placement: 'topRight',
       });
     }
   } catch (error: any) {
-    notification.error({
+    glassNotification.error({
       message: 'Signup Failed',
       description: error.message || 'An unexpected error occurred.',
       placement: 'topRight',
@@ -128,7 +128,7 @@ const goToLogin = () => {
 
         <div class="form-group">
           <Input
-            id="Password"
+            id="password"
             v-model="password"
             type="password"
             placeholder="Enter your password"

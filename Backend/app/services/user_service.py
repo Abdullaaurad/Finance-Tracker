@@ -2,7 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.user import User as UserModel
 from app.schemas.user import UserCreate, UserUpdate, User
-from werkzeug.security import generate_password_hash, check_password_hash
+from app.utils.helpers import hash_password, verify_password
 
 class UserService:
     def __init__(self, db: Session):
@@ -20,8 +20,27 @@ class UserService:
     def get_users(self, skip: int = 0, limit: int = 100) -> List[UserModel]:
         return self.db.query(UserModel).offset(skip).limit(limit).all()
     
+    def authenticate_user(self, username: str, password: str) -> Optional[UserModel]:
+        user = self.get_user_by_username(username)
+        if user and verify_password(password, user.hashed_password):
+            return user  # Return the User object, not a set
+        return None
+    
     def create_user(self, user: UserCreate) -> UserModel:
-        hashed_password = self.get_password_hash(user.password)
+        from app.utils.helpers import validate_username, validate_email, validate_password
+        
+        # Validate inputs
+        if not validate_username(user.username):
+            raise ValueError("Invalid username format")
+        
+        if not validate_email(user.email):
+            raise ValueError("Invalid email format")
+        
+        is_valid, error_msg = validate_password(user.password)
+        if not is_valid:
+            raise ValueError(f"Invalid password: {error_msg}")
+        
+        hashed_password = hash_password(user.password)
         db_user = UserModel(
             username=user.username,
             email=user.email,
@@ -49,9 +68,3 @@ class UserService:
             self.db.commit()
             return True
         return False
-    
-    def get_password_hash(self, password: str) -> str:
-        return generate_password_hash(password)
-    
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return check_password_hash(hashed_password, plain_password)

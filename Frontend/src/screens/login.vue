@@ -3,16 +3,81 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Input from '../components/input.vue'
 import Button from '../components/Button.vue'
+import { LoginUrl } from '../Constant/Url'
+import { Spin } from 'ant-design-vue'
+import { usernamevalidator, passwordvalidator } from '../utils/validators'
+import { glassNotification } from "../components/notification.js"
+import { atom, useAtom, createStore } from 'jotai'
 
 const router = useRouter()
-const email = ref('')
-const password = ref('')
+const username = ref<string>('')
+const password = ref<string>('')
+const loading = ref<boolean>(false)
 
-const handleLogin = () => {
-  // TODO: Implement login logic
-  console.log('Login:', email.value, password.value)
-  // After successful login, redirect to dashboard or home
-  // router.push('/dashboard')
+const usernameError = ref<string>('')
+const passwordError = ref<string>('')
+
+const userIdAtom = atom<number | null>(null)
+const usernameAtom = atom<string | null>(null)
+const store = createStore()
+
+const handleLogin = async () => {
+  // Reset errors
+  usernameError.value = '';
+  passwordError.value = '';
+
+  usernameError.value = usernamevalidator(username.value) ? '' : 'Invalid username';
+  passwordError.value = passwordvalidator(password.value) ? '' : 'Invalid password';
+
+  if (usernameError.value || passwordError.value) {
+    glassNotification.error({
+      message: 'Validation Error',
+      description: 'Please fix the errors before submitting.',
+      placement: 'topRight',
+    });
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const response = await fetch(LoginUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+      glassNotification.success({
+        message: 'Login Successful',
+        description: 'Welcome back! You have successfully logged in.',
+        placement: 'topRight',
+      });
+      store.set(userIdAtom, userData.id)
+      store.set(usernameAtom, username.value)
+      console.log('Login successful:', userData);
+      router.push('/home');
+    } else {
+      const data = await response.json();
+      glassNotification.error({
+        message: 'Login Failed',
+        description: data.detail || data.message || 'Invalid username or password.',
+        placement: 'topRight',
+      });
+    }
+  } catch (error: any) {
+    glassNotification.error({
+      message: 'Login Failed',
+      description: error.message || 'An unexpected error occurred.',
+      placement: 'topRight',
+    });
+  } finally {
+    loading.value = false;
+  }
+
 }
 
 const handleSocialLogin = (provider: string) => {
@@ -36,11 +101,14 @@ const goToSignup = () => {
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <Input
-            v-model="email"
-            type="email"
-            placeholder="Enter your email address"
+            v-model="username"
+            type="string"
+            placeholder="Enter your username`"
             :required="true"
           />
+          <span v-if="usernameError" class="error-message">
+            {{ usernameError }}
+          </span>
         </div>
 
         <div class="form-group">
@@ -51,9 +119,17 @@ const goToSignup = () => {
             :required="true"
             :passwordToggle="true"
           />
+          <span v-if="passwordError" class="error-message">
+            {{ passwordError }}
+          </span>
         </div>
 
-        <Button variant="secondary"> Log in </Button>
+        <Button variant="secondary"> 
+          <Spin v-if="loading" />
+          <span v-else>
+            Log in 
+          </span>
+        </Button>
       </form>
 
       <div class="divider">
